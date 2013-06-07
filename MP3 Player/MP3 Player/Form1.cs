@@ -15,6 +15,7 @@ namespace MP3_Player
         public Form1()
         {
             InitializeComponent();
+            timer1.Start();
         }
 
         string[] files, paths;
@@ -29,20 +30,37 @@ namespace MP3_Player
                 axWindowsMediaPlayer1.URL = paths[listBox1.SelectedIndex];
             }
 
-            timer1.Start();
+            
             timer2.Start();
         }
 
-       
+
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            textBox1.Text = axWindowsMediaPlayer1.Ctlcontrols.currentPosition.ToString();
+            float scale_w = panel1.Width / 100;
+            float scale_h = panel1.Height / 100;
 
-            //using (Graphics g = panel1.CreateGraphics())
-            //{
-            //    g.FillRectangle(Brushes.Black, new Rectangle(0, 5, 5, 50));
-            //}
+            panel1.Refresh();
+
+            using (Graphics g = panel1.CreateGraphics())
+            {
+
+                for (int i = 0; i < Effectcollection.Count; i++)
+                {
+                    if (i == listBox2.SelectedIndex)
+                    {
+                        g.FillEllipse(Brushes.Red, Effectcollection[i].Effect_p.X * scale_w, Effectcollection[i].Effect_p.Y * scale_h, 10, 10);
+                    }
+                    else
+                    {
+                        g.FillEllipse(Brushes.DarkRed, Effectcollection[i].Effect_p.X * scale_w, Effectcollection[i].Effect_p.Y * scale_h, 7, 7);
+                    }
+                }
+
+
+
+            }
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -74,6 +92,9 @@ namespace MP3_Player
                     progress =  (axWindowsMediaPlayer1.Ctlcontrols.currentPosition / axWindowsMediaPlayer1.currentMedia.duration);
                 }
                 panel1.Refresh();
+
+                
+
                 g.DrawLine(Pens.Black, (int)(progress * panel1.Width), 0, (int)(progress * panel1.Width), Math.Abs(panel1.Top - panel1.Bottom));
             }
 
@@ -86,7 +107,7 @@ namespace MP3_Player
 
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
-            Graphics g = e.Graphics;
+           /* Graphics g = e.Graphics;
            
             //g.DrawLine(Pens.Black, 0, panel1.Top, 100, panel1.Bottom);
             foreach (EffectNode item in Effectcollection)
@@ -95,7 +116,7 @@ namespace MP3_Player
             {
                 pg.DrawEllipse(Pens.BlueViolet, item.Effect_p.X, item.Effect_p.Y, 5, 5);
             }
-	}
+	}*/
             
             
         }
@@ -112,12 +133,14 @@ namespace MP3_Player
             if (EffectNode.CreateNew == true)
             {
                 EffectNode.CreateNew = false;
-                EffectNode n = new EffectNode(new System.Drawing.Point(Cursor.Position.X, Cursor.Position.Y));
-                n.Effect_p.X = (e.X - panel1.Location.X);
-                n.Effect_p.Y = (e.Y - panel1.Location.Y);
-                listBox2.Items.Add(n.Effect_p.X.ToString() + "_" + n.Effect_p.Y.ToString());
+                Point temp_p = panel1.PointToClient(Cursor.Position);
+                EffectNode n = new EffectNode(temp_p);
+                n.Effect_p.X = (temp_p.X * 100 / panel1.Width);
+                n.Effect_p.Y = (temp_p.Y * 100 / panel1.Height); ;
+                
+                listBox2.Items.Add("["+n.Effect_p.X.ToString() + "," + n.Effect_p.Y.ToString()+ "]");
 
-                textBox1.Enabled = true;
+                //textBox1.Enabled = true;
 
 
                 Effectcollection.Add(n);
@@ -141,7 +164,29 @@ namespace MP3_Player
 
         private void button2_Click(object sender, EventArgs e)
         {
-            textBox1.Enabled = false;  
+            textBox1.Enabled = false;
+            Effectcollection[listBox2.SelectedIndex].Effect_describe = textBox1.Text;
+            listBox2.Enabled = true;
+        }
+
+        private void listBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            textBox1.Enabled = false;
+           textBox1.Text = Effectcollection[listBox2.SelectedIndex].Effect_describe;
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            listBox2.Enabled = false;
+            textBox1.Enabled = true;
+
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            listBox2.Enabled = true;
+            textBox1.Text = null;
         }
     }
 }

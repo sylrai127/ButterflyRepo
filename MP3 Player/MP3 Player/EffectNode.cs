@@ -11,7 +11,7 @@ namespace MP3_Player
     {
         static public bool CreateNew = false;
         public Point Effect_p;
-        public string Effect_discribe;
+        public string Effect_describe;
         public EffectNode(Point p)
         {
             Effect_p = p;
